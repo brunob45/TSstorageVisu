@@ -235,7 +235,7 @@ for key, page in pages.items():
             filler["offset"] = size-1
             filler["shape"] = [8-int((space*8)), 7]
             pages[key]["unused_"+str(key)+'_'+str(size)] = filler
-        print("fille added, page", key)
+        print("filler added, page", key)
 
 
 out = open("out.json", "w")
@@ -268,6 +268,11 @@ for pageNumber, page in pages.items():
 
             if value["type"] == "bits":
                 out.write(": " + str(value["shape"][1] - value["shape"][0]+1))
+            elif value["type"] == "array":
+                size = 1
+                for i in value["shape"]:
+                    size *= i
+                out.write('[' + str(size) + ']')
 
             out.write(";\n")
     out.write("#if defined(CORE_AVR)\n\
