@@ -1,17 +1,61 @@
 import sys
 from PyQt5.QtWidgets import (QWidget, QDialog, QMenuBar,
-    QDialogButtonBox, QApplication, QTabWidget, QTableWidget, QVBoxLayout, QMenu, QHeaderView)
-from PyQt5.QtGui import QFont 
+    QDialogButtonBox, QApplication, QTabWidget, QTableWidget,
+    QVBoxLayout, QMenu, QHeaderView, QLabel)
+from PyQt5 import QtCore
+from PyQt5.QtGui import (QFont, QPalette)
+import json
 
 class PageGrid(QTableWidget):
-    def __init__(self, title, size):
+    def __init__(self, title, size, values=None):
         super().__init__()
         self.title = title
         self.setRowCount(size)
         self.setColumnCount(8)
-        self.setHorizontalHeaderLabels(['1','2','3','4','5','6','7','8'])
+        self.setHorizontalHeaderLabels(['8','7','6','5','4','3','2','1'])
         self.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        if values:
+            for name, info in values.items():
+                if '&' in name:
+                    name = name.split('&')[0]
+                
+                label = QLabel(name)
+                label.setAlignment(QtCore.Qt.AlignCenter)
+
+                if 'unused' in name.lower():
+                    label.setAutoFillBackground(True)
+                    label.setBackgroundRole(QPalette.Dark)
+
+                if info['type'] == 'bits':
+                    offset = info['offset']
+                    span = info['shape'][1] - info['shape'][0] + 1
+                    # if '16' in info['size'] and info['shape'][1] > 8:
+                    #     self.setCellWidget(offset, 0, label)
+                    #     self.setSpan(offset, info['shape'][0], 1, info['shape'][0]+info['shape'][1]-8)
+                    #     offset += 1
+                    #     span -= 9
+                    #     label = QLabel(name)
+                    #     label.setAlignment(QtCore.Qt.AlignCenter)
+                    self.setCellWidget(offset, 8-info['shape'][0]-span, label)
+                    if span > 1:
+                        self.setSpan(offset, 8-info['shape'][0]-span, 1, span)
+                elif info['type'] == 'array':
+                    span = info['shape'][0]
+                    if len(info['shape']) > 1:
+                        span *= info['shape'][1]
+                    if '16' in info['size']:
+                        span *= 2
+                    self.setCellWidget(info['offset'], 0, label)
+                    self.setSpan(info['offset'], 0, span, 8)
+                else:
+                    self.setCellWidget(info['offset'], 0, label)
+                    if '08' in info['size']:
+                        self.setSpan(info['offset'], 0, 1, 8)
+                    else:
+                        self.setSpan(info['offset'], 0, 2, 8)
+
+
     def width(self):
         return self.columnCount() * self.columnWidth(0)
     def contextMenuEvent(self, event):
@@ -79,10 +123,13 @@ class PageGrid(QTableWidget):
         self.setSpan(y1, 0, y2+1 - y1, self.columnCount())
 
 class PageTabs(QTabWidget):
-    def __init__(self, titles):
+    def __init__(self, pages):
         super().__init__()
-        for title in titles:
-            self.addTab(PageGrid(title, 8), title)
+        for title, info in pages.items():
+            size = info['size']
+            values = info['values']
+            self.addTab(PageGrid(title, size, values), title)
+            
     def __getitem__(self, index):
         if index >= self.count():
             raise StopIteration
@@ -101,7 +148,13 @@ class StorageManagerDialog(QDialog):
         
         
     def initUI(self):
-        self.tabs = PageTabs(["configPage2"])
+        try:
+            with open(sys.argv[1], 'r') as f:
+                data = json.load(f)
+                self.tabs = PageTabs(data['pages'])
+
+        except:
+            self.tabs = PageTabs(["configPage2"])
 
         buttonBox = QDialogButtonBox()
         buttonBox.addButton("Export", QDialogButtonBox.AcceptRole)

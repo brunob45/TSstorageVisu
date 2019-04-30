@@ -1,8 +1,15 @@
 from copy import deepcopy
 from time import sleep
 import json
+import sys
 
-f = open("./speeduino.ini", "r")
+try:
+    f = open(sys.argv[1])
+    print('Reading specified file...')
+except:
+    defaultFilePath = "D:/bruno/Desktop/speeduino/reference/"
+    f = open(defaultFilePath + "speeduino.ini", "r")
+    print('Reading default file...')
 
 TYPES = ["scalar", "bits", "array"]
 SIZES = ["U08", "S08", "U16", "S16"]
@@ -65,7 +72,6 @@ def getShape(shape):
     return shape
 
 def convert(values):
-    # print(values)
     t = values[0]
     value = None
     if t == bitstemplate["type"]:
@@ -106,13 +112,13 @@ def convert(values):
         if len(values) > 9:
             value["digits"] = (values[9])
     else:
-        print(values)
-        print("error")
+        print("parsing error:", values)
 
     return value
 
 condition = None
 
+#read ini file
 for line in f:
     # Save comments
     comment = None
@@ -157,9 +163,12 @@ for line in f:
 
     # Check if beginning new page
     if "page =" in line:
-        number = line.split('=')[1].strip()
-        pageNumber = int(number)
-        pages[pageNumber] = {}
+        pageNumber = int(line.split('=')[1].strip())
+        p = {}
+        p['size'] = pageSize[pageNumber-1]
+        p['values'] = {}
+        pages[pageNumber] = p
+        
 
     # Put value in array
     elif (pageNumber) and ('=' in line) and (',' in line):
@@ -190,11 +199,11 @@ for line in f:
         if temp:
             if comment:
                 temp["comment"] = comment
-            pages[pageNumber][name] = temp
+            pages[pageNumber]['values'][name] = temp
 
 for key, page in pages.items():
     nextOffset = 0.0
-    for name, value in page.items():
+    for name, value in page['values'].items():
         currentOffset = value["offset"]
         currentSize = 1
         if "bits" in value["type"]:
@@ -247,10 +256,23 @@ out.write("#ifndef __CONFIG_PAGES_H__\n\
 #define __CONFIG_PAGES_H__\n\n\
 #include <Arduino.h>\n\n")
 
+totalSize = 0
+for s in pageSize:
+    totalSize += s
+
+#out.write("uint8_t mem["+str(totalSize)+"];\n\n")
+
+memorySize = 0
+
 for pageNumber, page in pages.items():
+    if pageNumber not in [1,4,6,10]:
+        continue
+    if pageNumber is 1:
+        pageNumber = 2
+    
     names = []
     out.write("struct config" + str(pageNumber) + "\n{\n")
-    for key, value in page.items():
+    for key, value in page['values'].items():
         name = key.split('&')[0]
         if name not in names:
             names.append(name)
@@ -279,6 +301,7 @@ for pageNumber, page in pages.items():
 };\n\
 #else\n\
 } __attribute__((__packed__)); //The 32 bi systems require all structs to be fully packed\n\
-#endif\n\n")
+#endif\n")
+    out.write("struct config" + str(pageNumber) + " configPage" + str(pageNumber) + ";\n\n")
 
-out.write("#endif // __CONFIG_PAGES_H__")
+out.write("\n#endif // __CONFIG_PAGES_H__")
