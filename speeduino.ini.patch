@@ -1,0 +1,82 @@
+diff --git a/speeduino.ini b/speeduino.ini
+index c0af14e..a17a794 100644
+--- a/speeduino.ini
++++ b/speeduino.ini
+@@ -958,7 +958,7 @@ page = 10
+         vvtCLMinAng         = scalar, U16,     129,      "deg",      1.0,   0.0,  0.0,  360.0,      0 ; * (  1 bytes)
+         vvtCLMaxAng         = scalar, U16,     131,      "deg",      1.0,   0.0,  0.0,  360.0,      0 ; * (  1 bytes)
+ 
+-        unused11_122_191    = array,  U08,    126,  [58], "RPM",  100.0,      0.0,  100,     25500,    0
++        unused11_122_191    = array,  U08,    133,  [59], "RPM",  100.0,      0.0,  100,     25500,    0
+ 
+ ;Page 11 is the fuel map and axis bins only
+ page = 11
+@@ -1064,7 +1064,7 @@ page = 11
+     defaultValue = dutyLim,     80
+     defaultValue = mapMin,      10
+     defaultValue = mapMax,      260
+-    defaultValue = baroMin      10
++    defaultValue = baroMin,      10
+     defaultValue = baroMax,     260
+     defaultValue = useEMAP,     0
+     defaultValue = EMAPMin,     10
+@@ -1118,13 +1118,13 @@ page = 11
+     defaultValue = resetControlPin, 0
+ 
+     ;Default ADC filter values
+-    defaultValue = ADCFILTER_TPS  50
+-    defaultValue = ADCFILTER_CLT  180
+-    defaultValue = ADCFILTER_IAT  180
+-    defaultValue = ADCFILTER_O2   100
+-    defaultValue = ADCFILTER_BAT  128
+-    defaultValue = ADCFILTER_MAP   20 ;This is only used on Instantaneous MAP readings and is intentionally very weak to allow for faster response
+-    defaultValue = ADCFILTER_BARO  64
++    defaultValue = ADCFILTER_TPS,  50
++    defaultValue = ADCFILTER_CLT,  180
++    defaultValue = ADCFILTER_IAT,  180
++    defaultValue = ADCFILTER_O2,   100
++    defaultValue = ADCFILTER_BAT,  128
++    defaultValue = ADCFILTER_MAP,   20 ;This is only used on Instantaneous MAP readings and is intentionally very weak to allow for faster response
++    defaultValue = ADCFILTER_BARO,  64
+     ;Force the controller priority for the filters (Controller knows best here when in doubt)
+     controllerPriority = ADCFILTER_TPS
+     controllerPriority = ADCFILTER_CLT
+@@ -1147,22 +1147,22 @@ page = 11
+ 
+     controllerPriority = bootloaderCaps
+ 
+-    defaultValue = AUXin00Alias  Aux0
+-	defaultValue = AUXin01Alias  Aux1 
+-    defaultValue = AUXin02Alias  Aux2 
+-    defaultValue = AUXin03Alias  Aux3 
+-    defaultValue = AUXin04Alias  Aux4 
+-    defaultValue = AUXin05Alias  Aux5 
+-    defaultValue = AUXin06Alias  Aux6 
+-    defaultValue = AUXin07Alias  Aux7 
+-    defaultValue = AUXin08Alias  Aux8 
+-    defaultValue = AUXin09Alias  Aux9 
+-    defaultValue = AUXin10Alias  Aux10 
+-    defaultValue = AUXin11Alias  Aux11 
+-    defaultValue = AUXin12Alias  Aux12 
+-    defaultValue = AUXin13Alias  Aux13 
+-    defaultValue = AUXin14Alias  Aux14 
+-    defaultValue = AUXin15Alias  Aux15
++    defaultValue = AUXin00Alias,  Aux0
++	defaultValue = AUXin01Alias,  Aux1 
++    defaultValue = AUXin02Alias,  Aux2 
++    defaultValue = AUXin03Alias,  Aux3 
++    defaultValue = AUXin04Alias,  Aux4 
++    defaultValue = AUXin05Alias,  Aux5 
++    defaultValue = AUXin06Alias,  Aux6 
++    defaultValue = AUXin07Alias,  Aux7 
++    defaultValue = AUXin08Alias,  Aux8 
++    defaultValue = AUXin09Alias,  Aux9 
++    defaultValue = AUXin10Alias,  Aux10 
++    defaultValue = AUXin11Alias,  Aux11 
++    defaultValue = AUXin12Alias,  Aux12 
++    defaultValue = AUXin13Alias,  Aux13 
++    defaultValue = AUXin14Alias,  Aux14 
++    defaultValue = AUXin15Alias,  Aux15
+ 
+ [Menu]
+ 

@@ -22,6 +22,7 @@ data = {
     "define": defines,
     "pages": pages
 }
+variables={}
 
 scalartemplate = {
     "type": "scalar",
@@ -123,7 +124,7 @@ for line in f:
     # Save comments
     comment = None
     if ';' in line:
-        comment = line.split(';')[1]
+        comment = line.split(';')[1].strip()
 
     # Remove comments
     line = line.split(';')[0]
@@ -140,9 +141,9 @@ for line in f:
         condition = None
 
     # Find code that could be replaced by define
-    for key, value in defines.items():
-        while value in line and value.count(',') >= 4:
-            line = line.replace(value, key)
+    # for key, value in defines.items():
+    #     while value in line and value.count(',') >= 1:
+    #         line = line.replace(value, key)
 
     # If defining, add to list
     if "#define" in line and '=' in line:
@@ -200,6 +201,28 @@ for line in f:
             if comment:
                 temp["comment"] = comment
             pages[pageNumber]['values'][name] = temp
+            variables[name] = temp
+
+for line in f:
+    # If at the end of constants, stop
+    if "[Menu]" in line:
+        break
+
+    line = line.split(';')[0].strip()
+    if len(line) == 0:
+        continue
+
+    if "requiresPowerCycle" in line:
+        name = line.split('=')[1].strip()
+        if name in variables.keys():
+            variables[name]["requiresPowerCycle"] = True
+    
+    if "defaultValue" in line:
+        temp = line.split('=')[1].split(',')
+        name = temp[0].strip()
+        value = temp[1].strip()
+        if name in variables.keys():
+            variables[name]["defaultValue"] = float(value) if '.' in value else int(value)
 
 for key, page in pages.items():
     nextOffset = 0.0
@@ -216,7 +239,7 @@ for key, page in pages.items():
                 currentSize *= dim
     
         if currentOffset - nextOffset > 0.1:
-            print("space between values", key, name, currentOffset - nextOffset)
+            print(int((currentOffset - nextOffset)*8), "bits of space before", name, "in page", key)
             nextOffset = currentOffset + currentSize
         elif nextOffset - currentOffset > 0.1:
             if '&!' not in name:
