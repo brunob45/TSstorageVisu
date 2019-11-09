@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 from PyQt5.QtWidgets import (QWidget, QDialog, QMenuBar,
     QDialogButtonBox, QApplication, QTabWidget, QTableWidget,

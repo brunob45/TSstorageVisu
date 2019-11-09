@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from copy import deepcopy
 from time import sleep
 import json
@@ -219,6 +221,9 @@ for line in f:
     
     if "defaultValue" in line:
         temp = line.split('=')[1].split(',')
+        if len(temp) < 2:
+            print("missing comma", line)
+            continue
         name = temp[0].strip()
         value = temp[1].strip()
         if name in variables.keys():
@@ -259,14 +264,14 @@ for key, page in pages.items():
             offset = size-space
             filler["offset"] = size-space
             filler["shape"] = [space]
-            pages[key]["unused_"+str(key)+'_'+str(offset)] = filler
+            pages[key]["values"]["unused_"+str(key)+'_'+str(offset)] = filler
             nextOffset += space
         space = size-nextOffset
         if space > 0.1:
             filler = deepcopy(bitstemplate)
             filler["offset"] = size-1
             filler["shape"] = [8-int((space*8)), 7]
-            pages[key]["unused_"+str(key)+'_'+str(size)] = filler
+            pages[key]["values"]["unused_"+str(key)+'_'+str(size)] = filler
         print("filler added, page", key)
 
 
